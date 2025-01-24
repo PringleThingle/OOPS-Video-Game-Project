@@ -7,6 +7,7 @@ namespace Video_Game {
 
         private RenderWindow gameWindow;
         private GameMap gameMap;
+        private SideView sideView;
 
 
         public GameController() {
@@ -15,6 +16,8 @@ namespace Video_Game {
             gameWindow.KeyPressed += OnKeyPressed;
 
             gameMap = new GameMap();
+            sideView = new SideView();
+            gameMap.LoadMap("Levels/Map0.map");
         }
 
         private void OnClosed(object? sender, EventArgs e) {
@@ -67,9 +70,11 @@ namespace Video_Game {
 
         private void RenderGame() {
 
-            gameWindow.Clear(new Color(0, 150, 200));
+            gameWindow.Clear(new Color(Color.Black));
 
             gameMap.DrawMap(gameWindow);
+
+            sideView.DrawSideView(gameWindow);
 
             gameWindow.Display();
 
