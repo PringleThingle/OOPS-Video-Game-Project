@@ -9,15 +9,16 @@ namespace Video_Game {
         private GameMap gameMap;
         private SideView sideView;
 
-
         public GameController() {
-            gameWindow = new RenderWindow(new VideoMode(1100, 900), "Assessment Program", Styles.Close);
+
+            gameMap = new GameMap();
+            gameWindow = new RenderWindow(new VideoMode(gameMap.windowWidthpx, gameMap.windowHeightpx), "Assessment Program", Styles.Close);
             gameWindow.Closed += OnClosed;
             gameWindow.KeyPressed += OnKeyPressed;
 
-            gameMap = new GameMap();
-            sideView = new SideView();
-            gameMap.LoadMap("Levels/Map0.map");
+            sideView = new SideView(gameMap);
+            gameMap.SetSideView(sideView);
+            gameMap.LoadMap(gameMap.current_level);
         }
 
         private void OnClosed(object? sender, EventArgs e) {
@@ -47,6 +48,10 @@ namespace Video_Game {
                 case Keyboard.Key.Escape:
                     gameWindow.Close();
                     break;
+                case Keyboard.Key.R:
+                    gameMap.ClearMap();
+                    gameMap.LoadMap(gameMap.current_level);
+                    break;
             }
         }
 
@@ -58,7 +63,6 @@ namespace Video_Game {
                 UpdateGame();
 
                 RenderGame();
-
 
             }
             gameWindow.Close();

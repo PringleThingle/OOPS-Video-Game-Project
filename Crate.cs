@@ -1,28 +1,30 @@
 ﻿
-namespace Video_Game {
-    internal class Crate {
+using SFML.Graphics;
+using SFML.System;
 
-        public int x;
-        public int y;
+namespace Video_Game {
+    internal class Crate : Tile  {
+
+        
         public bool isOnDiamond;
 
 
-        public Crate(int X, int Y, bool IsOnDiamond = false) {
-            x = X;
-            y = Y;
-            isOnDiamond = IsOnDiamond; // Defaults to false unless specified
+        public Crate(Vector2i position, float Size, bool IsOnDiamond = false) : base(position, Size) {
+
+            SetTexture();
+            isOnDiamond = IsOnDiamond; // Defaults to false 
         }
 
-        public void MoveTo(int new_x, int new_y, bool IsOnDiamond) {
+        public override void SetTexture() {
+            // Set the default texture (can be overridden)
+            texture = new Texture("Assets/img_crate.jpg");
+            shape.Texture = texture;
+        }
 
-            x = new_x;
-            y = new_y;
+        public void MoveTo(Vector2i new_pos, bool IsOnDiamond) {
+            UpdatePosition(new_pos, shape.Size.X);
             isOnDiamond = IsOnDiamond;
 
         }
-
-
-
-
     }
 }
