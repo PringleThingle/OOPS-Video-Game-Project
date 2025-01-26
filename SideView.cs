@@ -9,9 +9,11 @@ namespace Video_Game {
         private RectangleShape[,] sideView;
         private Font basic_font;
         private Text title_text;
+        private Text level_text;
+        private Text player_score;
         private Text timer_text;
 
-        public SideView() {
+        public SideView(GameMap gameMap) {
 
             sideView = new RectangleShape[2, 9];
 
@@ -26,17 +28,21 @@ namespace Video_Game {
                     sideView[x, y].Texture = new Texture("Assets/img_sideview.jpg");
                 }
 
-                int minutes = 0;
-                int seconds = 0;
-
                 basic_font = new Font("Assets/basic_font.ttf");
                 title_text = new Text("ANGRY BOX", basic_font);
                 title_text.Position = this.Position + new Vector2f(20f, 20f);
                 title_text.OutlineThickness = 0.5f;
                 title_text.OutlineColor = Color.White;
-                
-                timer_text = new Text((Convert.ToString(minutes) + ":" + Convert.ToString(seconds)), basic_font);
-                timer_text.Position = this.Position + new Vector2f(40f, 40f);
+
+                level_text = new Text("Level " + gameMap.current_level, basic_font);
+                level_text.Position = this.Position + new Vector2f(50f, 60f);
+                level_text.OutlineThickness = 0.3f;
+                level_text.OutlineColor = Color.White;
+
+                player_score = new Text("Score: " + gameMap.player_moves, basic_font);
+                player_score.Position = this.Position + new Vector2f(50f, 100f);
+                player_score.OutlineThickness = 0.2f;
+                player_score.OutlineColor = Color.White;
 
             }
         }
@@ -52,6 +58,20 @@ namespace Video_Game {
             }
 
             window.Draw(title_text);
+            window.Draw(level_text);
+            window.Draw(player_score);
+        }
+
+        public void UpdateLevelText(int currentLevel) {
+            if (level_text != null) {
+                level_text.DisplayedString = "Level " + currentLevel;
+            }
+        }
+
+        public void UpdatePlayerScore(int playerScore) {
+            if (player_score != null) {
+                player_score.DisplayedString = "Score " + playerScore;
+            }
         }
     }
 }

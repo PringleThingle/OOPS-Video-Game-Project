@@ -1,13 +1,10 @@
 ﻿
 namespace Video_Game {
-    internal class Crate {
+    internal class Crate : Tile{
 
-        public int x;
-        public int y;
         public bool isOnDiamond;
 
-
-        public Crate(int X, int Y, bool IsOnDiamond = false) {
+        public Crate(int X, int Y, bool IsOnDiamond = false) : base(X, Y){
             x = X;
             y = Y;
             isOnDiamond = IsOnDiamond; // Defaults to false unless specified
@@ -21,8 +18,14 @@ namespace Video_Game {
 
         }
 
+        public override string SetTexture() {
 
-
+            if (isOnDiamond) {
+                 return "filled_crate";
+            } else {
+                return "crate";
+            }
+        }
 
     }
 }
