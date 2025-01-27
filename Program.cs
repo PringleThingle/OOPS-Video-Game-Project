@@ -1,5 +1,4 @@
-﻿
-namespace Video_Game {
+﻿namespace Video_Game {
     internal class Program {
         static void Main(string[] args) {
 

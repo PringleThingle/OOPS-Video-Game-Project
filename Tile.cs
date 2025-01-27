@@ -1,5 +1,4 @@
-﻿
-namespace Video_Game {
+﻿namespace Video_Game {
 
     //Tile class used to meet requirements of the brief
 

@@ -5,24 +5,24 @@ using SFML.Window;
 namespace Video_Game {
     internal class GameMap {
 
-        private RectangleShape[,] map;
-        private Dictionary<string, Texture> textures;
+        private RectangleShape[,]? map;
+        private readonly Dictionary<string, Texture>? textures;
         private int player_x = 0;
         private int player_y = 0;
-        private Font basic_font = new Font("Assets/basic_font.ttf");
+        private readonly Font basic_font = new Font("Assets/basic_font.ttf");
         private int map_width;
         private int map_height;
         private bool levelComplete = false;
         private bool levelIncremented = false;
-        private string map_folder = ("Levels/");
+        private readonly string map_folder = ("Levels/");
         private SideView? sideView;
         private bool canMove = true;
-
+        
         public int player_total_moves;
-        public int current_level = 3;
+        public int current_level = 1;
         public int player_moves;
-        public uint windowHeightpx = 900;
-        public uint windowWidthpx = 1600;
+        public uint windowHeightpx = 850;
+        public uint windowWidthpx = 1050;
         public List<Crate> crates = new List<Crate>();
 
         public GameMap() {
@@ -59,7 +59,7 @@ namespace Video_Game {
             player_moves = 0;
         }
         
-        //Used to reset the players total score for all levels
+        //Used to reset the players overall score
         private void ResetFinalScore() {
             player_total_moves = 0;
         }
@@ -76,17 +76,9 @@ namespace Video_Game {
                 return;
             }
 
-            if (textures != null) {
-                foreach (Texture texture in textures.Values) {
-                    if (texture == null) {
-                        return;
-                    }
-                }
-            }
-
             canMove = true;
             levelIncremented = false;
-            string[] all_lines = File.ReadAllLines("Levels/Map" + current_level + ".map");
+            string[] all_lines = File.ReadAllLines("Levels/Map" + level + ".map");
 
             map_height = all_lines.Length;
             map_width = all_lines[0].Length;
@@ -123,6 +115,11 @@ namespace Video_Game {
                     map[x, y].Size = new Vector2f(Size, Size);
                     map[x, y].Position = new Vector2f(x * Size, y * Size);
 
+                    if (textures == null) {
+                        Console.WriteLine("Textures dont exist?");
+                        return;
+                    }
+
                     switch (all_lines[y][x]) {
                         case 'W':
                             map[x, y].Texture = textures["wall"];
@@ -153,6 +150,12 @@ namespace Video_Game {
         //This function draws each map tile from the map array (created by LoadMap()) onto the game window
         public void DrawMap(RenderWindow window) {
 
+            if (map == null || textures == null) {
+                Console.WriteLine("Map or textures do not exist");
+                return;
+            }
+
+
             for (int y = 0; y < map_height; y++) {
 
                 for (int x = 0; x < map_width; x++) {
@@ -182,6 +185,12 @@ namespace Video_Game {
 
             canMove = false;
 
+            if (map == null || textures == null) {
+                Console.WriteLine("Map or textures do not exist");
+                return;
+            }
+
+
             for (int y = 0; y < map_height; y++) {
 
                 for (int x = 0; x < map_width; x++) {
@@ -191,6 +200,8 @@ namespace Video_Game {
                     }
                 }
             }
+            
+
 
             string[] files = Directory.GetFiles(map_folder);
             int mapCount = files.Length;
@@ -240,8 +251,8 @@ namespace Video_Game {
                         LoadMap(current_level);
                         ResetScore();
                         ResetFinalScore();
-                        sideView.UpdateLevelText(current_level);
-                        sideView.UpdatePlayerScore(player_moves);
+                        sideView?.UpdateLevelText(current_level);
+                        sideView?.UpdatePlayerScore(player_moves);
                     }
                 }
 
@@ -348,7 +359,8 @@ namespace Video_Game {
         //If no tiles are a diamond, then the player has won and levelComplete is set to true.
         public void CheckWin() {
 
-            if (map == null) {
+            if (map == null || textures == null) {
+                Console.WriteLine("Map or textures do not exist");
                 return;
             }
 
@@ -369,6 +381,11 @@ namespace Video_Game {
         //The direction the player moves (Based on which key they pressed) is fed in from GameController and then their actual position is updated in this function.
         //The player "score" is also updated each time the player successfully moves (not counting incorrect movement)
         public void MovePlayer(string direction) {
+
+            if (map == null || textures == null) {
+                Console.WriteLine("Map or textures do not exist");
+                return;
+            }
 
             //Old player location replaced with floor texture
             //map[player_x, player_y].Texture = textures["floor"]
@@ -397,7 +414,7 @@ namespace Video_Game {
                     return;
                 }
 
-                Crate crate = null; // Find the crate at the target position
+                Crate? crate = null; // Find the crate at the target position
                 foreach (Crate currentCrate in crates) {
                     if (currentCrate.x == targetX && currentCrate.y == targetY) {
                         crate = currentCrate;
