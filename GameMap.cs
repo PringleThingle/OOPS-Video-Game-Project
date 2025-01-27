@@ -9,73 +9,80 @@ namespace Video_Game {
         private Dictionary<string, Texture> textures;
         private int player_x = 0;
         private int player_y = 0;
-        public List<Crate> crates = new List<Crate>();
-        public int current_level = 3;
-        public int player_moves;
-        public uint windowHeightpx = 900;
-        public uint windowWidthpx = 1100;
         private Font basic_font = new Font("Assets/basic_font.ttf");
         private int map_width;
         private int map_height;
         private bool levelComplete = false;
-        public int player_total_moves;
         private bool levelIncremented = false;
         private string map_folder = ("Levels/");
         private SideView? sideView;
         private bool canMove = true;
 
+        public int player_total_moves;
+        public int current_level = 3;
+        public int player_moves;
+        public uint windowHeightpx = 900;
+        public uint windowWidthpx = 1600;
+        public List<Crate> crates = new List<Crate>();
+
         public GameMap() {
 
-            textures = new Dictionary<string, Texture>();
+            try {
+                textures = new Dictionary<string, Texture> {
+                { "floor", new Texture("Assets/img_floor.jpg") },
+                { "player", new Texture("Assets/img_player.jpg") },
+                { "crate", new Texture("Assets/img_crate.jpg") },
+                { "wall", new Texture("Assets/img_wall.jpg") },
+                { "diamond", new Texture("Assets/img_diamond.jpg") },
+                { "filled_crate", new Texture("Assets/img_filled_crate.jpg") },
+                { "player_diamond", new Texture("Assets/img_player_diamond.jpg") },
+                { "happy_player", new Texture("Assets/img_happy_player.jpg") }
+            };
+            }
 
-            textures.Add("floor", new Texture("Assets/img_floor.jpg"));
-            textures.Add("player", new Texture("Assets/img_player.jpg"));
-            textures.Add("crate", new Texture("Assets/img_crate.jpg"));
-            textures.Add("wall", new Texture("Assets/img_wall.jpg"));
-            textures.Add("diamond", new Texture("Assets/img_diamond.jpg"));
-            textures.Add("filled_crate", new Texture("Assets/img_filled_crate.jpg"));
-            textures.Add("player_diamond", new Texture("Assets/img_player_diamond.jpg"));
+            catch {
+                Console.WriteLine("Textures failed to load, please try restarting.");
+                return;
+            }
+            //Initialises textures so they can be used from memory
 
-
-
-/*            for (int y = 0; y < 9; y++) {
-
-                for (int x = 0; x < 9; x++) {
-
-                    map[x, y] = new RectangleShape();
-                    map[x, y].Size = new Vector2f(100, 100);
-                    map[x, y].Position = new Vector2f(x * 100f, y * 100f);
-                    map[x, y].Texture = textures["floor"]; //FLOOR
-                }
-
-            }*/
-
-/*            map[player_x, player_y].Texture = textures["player"]; //PLAYER 
-
-            Crate crate1 = new Crate(5, 5, false);
-            crates.Add(crate1);
-            Crate crate2 = new Crate(7, 7, false);
-            crates.Add(crate2);
-
-            map[3, 4].Texture = textures["wall"]; //WALL
-            map[7, 2].Texture = textures["diamond"]; //WALL*/
 
         }
 
+        //Used to take the created SideView from GameController and use it in GameMap
         public void SetSideView(SideView view) {
             sideView = view;
         }
 
-        public void ResetScore() {
+        //Used to reset the players score for each level
+        private void ResetScore() {
             player_moves = 0;
         }
-
-        public void ResetFinalScore() {
+        
+        //Used to reset the players total score for all levels
+        private void ResetFinalScore() {
             player_total_moves = 0;
         }
 
 
+        //This function loads / creates the map using data provided by a map file and an int representing the level
+        //It also calculates the size tiles should be based on how many tiles there are in each axis on the map file and maintains their aspect ratio
+        //It calculates the location in pixels where each tile should be (Needed to actually draw the tile)
+        //It then sets each tiles texture in the 2D map array with different letters representing the different types of tile (C - Crate, D - Diamond, P - Player, F - Floor, W - Wall)
         public void LoadMap(int level) {
+
+            if (textures == null) {
+                Console.WriteLine("Textures did not load correctly");
+                return;
+            }
+
+            if (textures != null) {
+                foreach (Texture texture in textures.Values) {
+                    if (texture == null) {
+                        return;
+                    }
+                }
+            }
 
             canMove = true;
             levelIncremented = false;
@@ -135,11 +142,15 @@ namespace Video_Game {
                             player_x = x;
                             player_y = y;
                             break;
+                        default:
+                            map[x, y].Texture = textures["floor"];
+                            break;
                     }
                 }
             }
         }
 
+        //This function draws each map tile from the map array (created by LoadMap()) onto the game window
         public void DrawMap(RenderWindow window) {
 
             for (int y = 0; y < map_height; y++) {
@@ -163,23 +174,33 @@ namespace Video_Game {
             }
         }
 
+
+
+        //This function displays a popup when the player completes a level (All diamonds covered by crates)
+        //The popup allows the user to retry the level or go to the next level, and displays a game complete screen when completing the last level.
         public void DisplayWinPopup(RenderWindow window) {
 
             canMove = false;
 
-            // Get the files in the folder
-            string[] files = Directory.GetFiles(map_folder);
+            for (int y = 0; y < map_height; y++) {
 
-            // Count the files
+                for (int x = 0; x < map_width; x++) {
+
+                    if (map[x, y].Texture == textures["player"]) {
+                        map[x, y].Texture = textures["happy_player"];
+                    }
+                }
+            }
+
+            string[] files = Directory.GetFiles(map_folder);
             int mapCount = files.Length;
 
-
-
+            //If the current level is the final level, then display the final level complete popup (instead of the normal level complete popup)
             if (mapCount == current_level) {
 
                 //Final level complete popup
                 RectangleShape win_popup = new RectangleShape(new Vector2f(500, 200));
-                win_popup.FillColor = new Color(0, 0, 0, 150);
+                win_popup.FillColor = new Color(0, 0, 0, 200);
                 win_popup.Position = new Vector2f(((windowWidthpx - 200) / 2) - 250, ((windowHeightpx - 100) / 2) - 100);
                 window.Draw(win_popup);
 
@@ -208,7 +229,6 @@ namespace Video_Game {
                 buttonText.Position = new Vector2f(windowWidthpx / 2 - 155, windowHeightpx / 2);
                 window.Draw(buttonText);
 
-                // Check for mouse click on next level button
                 if (Mouse.IsButtonPressed(Mouse.Button.Left)) {
                     Vector2i mousePosition = Mouse.GetPosition(window);
                     FloatRect buttonBounds = play_again_button.GetGlobalBounds();
@@ -225,11 +245,12 @@ namespace Video_Game {
                     }
                 }
 
+              //Else we display the normal level complete popup, allowing the user to progress to the next level
             } else {
 
                 //Popup Window
                 RectangleShape popup = new RectangleShape(new Vector2f(400, 200));
-                popup.FillColor = new Color(0, 0, 0, 150);
+                popup.FillColor = new Color(0, 0, 0, 175);
                 popup.Position = new Vector2f(((windowWidthpx - 200) / 2) - 200, ((windowHeightpx - 100) / 2) - 100);
                 window.Draw(popup);
 
@@ -258,7 +279,7 @@ namespace Video_Game {
                 buttonText.Position = new Vector2f(windowWidthpx / 2 - 75, windowHeightpx / 2 + 10);
                 window.Draw(buttonText);
 
-                // Next level button
+                // Retry level button
                 RectangleShape retry_level_button = new RectangleShape(new Vector2f(196, 50));
                 retry_level_button.FillColor = Color.Red;
                 retry_level_button.Position = new Vector2f(windowWidthpx / 2 - 298, windowHeightpx / 2);
@@ -271,7 +292,6 @@ namespace Video_Game {
                 retry_button_Text.Position = new Vector2f(windowWidthpx / 2 - 275, windowHeightpx / 2 + 10);
                 window.Draw(retry_button_Text);
 
-                // Check for mouse click on next level button
                 if (Mouse.IsButtonPressed(Mouse.Button.Left)) {
                     Vector2i mousePosition = Mouse.GetPosition(window);
                     FloatRect buttonBounds = next_level_button.GetGlobalBounds();
@@ -289,7 +309,6 @@ namespace Video_Game {
                     }
                 }
 
-                // Check for mouse click on next level button
                 if (Mouse.IsButtonPressed(Mouse.Button.Left)) {
                     Vector2i mousePosition = Mouse.GetPosition(window);
                     FloatRect buttonBounds = retry_level_button.GetGlobalBounds();
@@ -305,11 +324,10 @@ namespace Video_Game {
                     }
                 }
             }
-
-
-
         }
 
+
+        //Clears the map and resets the level completion status, used before loading a new map.
         public void ClearMap() {
 
             levelComplete = false;
@@ -318,7 +336,16 @@ namespace Video_Game {
             Console.WriteLine("Map cleared!");
         }
 
+        public void RestartMap() {
 
+            ClearMap();
+            LoadMap(current_level);
+            Console.WriteLine("Map restarted!");
+        }
+
+
+        //Checks if any tiles are a diamond, if a tile is a diamond function returns nothing.
+        //If no tiles are a diamond, then the player has won and levelComplete is set to true.
         public void CheckWin() {
 
             if (map == null) {
@@ -327,7 +354,7 @@ namespace Video_Game {
 
             foreach (var tile in map) {
 
-                if (tile.Texture == textures["diamond"]) {
+                if (tile.Texture == textures["diamond"] || tile.Texture == textures["player_diamond"]) {
                     return;
                 }
             }
@@ -336,6 +363,11 @@ namespace Video_Game {
             Console.WriteLine("You win!");
         }
 
+        //This function handles all the logic for the player moving and crates being pushed.
+        //This logic includes textures changing when a crate is pushed onto a diamond, and when a player steps on a diamond.
+        //This function also handles the logic to stop incorrect movement, such as moving out of bounds, or standing on a crate, or crates being pushed onto crates etc.
+        //The direction the player moves (Based on which key they pressed) is fed in from GameController and then their actual position is updated in this function.
+        //The player "score" is also updated each time the player successfully moves (not counting incorrect movement)
         public void MovePlayer(string direction) {
 
             //Old player location replaced with floor texture
@@ -438,7 +470,6 @@ namespace Video_Game {
 
             CheckWin();
 
-            sideView?.UpdateLevelText(current_level);
             sideView?.UpdatePlayerScore(player_moves);
 
             Console.WriteLine("X: " + player_x);

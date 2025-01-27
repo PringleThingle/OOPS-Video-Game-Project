@@ -9,7 +9,7 @@ namespace Video_Game {
         private GameMap gameMap;
         private SideView sideView;
 
-
+        //Used to create a new instance of the map, window and sideview. Loads the map, 
         public GameController() {
             gameMap = new GameMap();
             gameWindow = new RenderWindow(new VideoMode(gameMap.windowWidthpx, gameMap.windowHeightpx), "Assessment Program", Styles.Close);
@@ -21,13 +21,16 @@ namespace Video_Game {
             gameMap.LoadMap(gameMap.current_level);
         }
 
+        //Allows the user to close the window by clicking the X
         private void OnClosed(object? sender, EventArgs e) {
             gameWindow.Close();
         }
 
+        //Calls different functions depending on different key presses, used to feed directions to the MovePlayer function.
+        //Also allows the player to restart a level by pressing R, and exit the game by pressing Escape
         private void OnKeyPressed(object? sender, KeyEventArgs e) {
 
-            switch(e.Code) {
+            switch (e.Code) {
 
                 case Keyboard.Key.W:
                     Console.WriteLine("Move up");
@@ -44,6 +47,10 @@ namespace Video_Game {
                 case Keyboard.Key.D:
                     Console.WriteLine("Move right");
                     gameMap.MovePlayer("right");
+                    break;
+                case Keyboard.Key.R:
+                    Console.WriteLine("Level reset");
+                    gameMap.RestartMap();
                     break;
                 case Keyboard.Key.Escape:
                     gameWindow.Close();
@@ -71,14 +78,9 @@ namespace Video_Game {
 
         private void RenderGame() {
 
-            gameWindow.Clear(new Color(Color.Black));
-
             gameMap.DrawMap(gameWindow);
-
-            sideView.DrawSideView(gameWindow);
-
+            sideView?.DrawSideView(gameWindow);
             gameWindow.Display();
-
 
         }
 

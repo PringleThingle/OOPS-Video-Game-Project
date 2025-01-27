@@ -1,18 +1,18 @@
 ﻿using SFML.Graphics;
 using SFML.System;
-using System.Timers;
-
 
 namespace Video_Game {
+
+    //This class is used to create the side bar that displays the name of the game, player score, and the current level
     internal class SideView : RectangleShape {
 
         private RectangleShape[,] sideView;
-        private Font basic_font;
-        private Text title_text;
-        private Text level_text;
-        private Text player_score;
-        private Text timer_text;
+        private Font? basic_font;
+        private Text? title_text;
+        private Text? level_text;
+        private Text? player_score;
 
+        //Side bar position and text positions are set. They are then updated dynamically to show the level and current score.
         public SideView(GameMap gameMap) {
 
             sideView = new RectangleShape[2, 9];
@@ -23,8 +23,8 @@ namespace Video_Game {
 
                     sideView[x, y] = new RectangleShape();
                     sideView[x, y].Size = new Vector2f(100, 100);
-                    sideView[x, y].Position = new Vector2f(900 + (x * 100f), y * 100f);
-                    this.Position = new Vector2f(900, 0);
+                    sideView[x, y].Position = new Vector2f((gameMap.windowWidthpx - 200) + (x * 100f), y * 100f);
+                    this.Position = new Vector2f(gameMap.windowWidthpx - 200, 0);
                     sideView[x, y].Texture = new Texture("Assets/img_sideview.jpg");
                 }
 
@@ -47,6 +47,7 @@ namespace Video_Game {
             }
         }
 
+        //Used to draw the elements of the side bar to the game window
         public void DrawSideView(RenderWindow window) {
 
             for (int y = 0; y < 9; y++) {
@@ -62,12 +63,14 @@ namespace Video_Game {
             window.Draw(player_score);
         }
 
+        //Updates the level text so that it can be displayed dynamically
         public void UpdateLevelText(int currentLevel) {
             if (level_text != null) {
                 level_text.DisplayedString = "Level " + currentLevel;
             }
         }
 
+        //Updates the players score so that it updates with each move the player makes
         public void UpdatePlayerScore(int playerScore) {
             if (player_score != null) {
                 player_score.DisplayedString = "Score " + playerScore;
