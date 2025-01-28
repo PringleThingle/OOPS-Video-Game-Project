@@ -17,7 +17,8 @@ namespace Video_Game {
         private readonly string map_folder = ("Levels/");
         private SideView? sideView;
         private bool canMove = true;
-        
+        private bool mapExists = false;
+
         public int player_total_moves;
         public int current_level = 1;
         public int player_moves;
@@ -27,6 +28,7 @@ namespace Video_Game {
 
         public GameMap() {
 
+            //Initialises textures so they can be used from memory
             try {
                 textures = new Dictionary<string, Texture> {
                 { "floor", new Texture("Assets/img_floor.jpg") },
@@ -44,8 +46,6 @@ namespace Video_Game {
                 Console.WriteLine("Textures failed to load, please try restarting.");
                 return;
             }
-            //Initialises textures so they can be used from memory
-
 
         }
 
@@ -80,8 +80,16 @@ namespace Video_Game {
             levelIncremented = false;
             string[] all_lines = File.ReadAllLines("Levels/Map" + level + ".map");
 
-            map_height = all_lines.Length;
-            map_width = all_lines[0].Length;
+            try {
+                map_height = all_lines.Length;
+                map_width = all_lines[0].Length;
+            }
+
+            catch {
+                Console.WriteLine("Map is empty");
+                return;
+            }
+
 
             map = new RectangleShape[map_width, map_height];
 
@@ -93,19 +101,18 @@ namespace Video_Game {
             if (tile_width > tile_height) {
                 tile_width = tile_height;
                 Size = (int)tile_width;
-                Console.WriteLine("Tile width: " + tile_width);
             }
 
             if (tile_height > tile_width) {
                 tile_height = tile_width;
                 Size = (int)tile_height;
-                Console.WriteLine("Tile height: " + tile_width);
             }
 
             if (tile_width == tile_height) {
                 Size = (int)tile_width;
-                Console.WriteLine("Tile width: " + tile_width);
             }
+
+            bool playerOnMap = false;
 
             for (int y = 0; y < map_height; y++) {
 
@@ -119,6 +126,8 @@ namespace Video_Game {
                         Console.WriteLine("Textures dont exist?");
                         return;
                     }
+
+                    
 
                     switch (all_lines[y][x]) {
                         case 'W':
@@ -143,18 +152,29 @@ namespace Video_Game {
                             map[x, y].Texture = textures["floor"];
                             break;
                     }
+
+                    if (map[x, y].Texture == textures["player"]) {
+
+                        playerOnMap = true;
+                    }
                 }
             }
+
+            if (!playerOnMap) {
+                Console.WriteLine("Player not detected on the map");
+            }
+
+            mapExists = true;
         }
 
         //This function draws each map tile from the map array (created by LoadMap()) onto the game window
         public void DrawMap(RenderWindow window) {
 
-            if (map == null || textures == null) {
-                Console.WriteLine("Map or textures do not exist");
+            if (mapExists == false || map == null || textures == null) {
+                Console.WriteLine("Map did not load correctly");
+                Console.ReadLine();
                 return;
             }
-
 
             for (int y = 0; y < map_height; y++) {
 
@@ -163,6 +183,7 @@ namespace Video_Game {
                     window.Draw(map[x, y]);
                 }
             }
+
 
             foreach (var crate in crates) {
                 if (crate.isOnDiamond) {
@@ -489,8 +510,7 @@ namespace Video_Game {
 
             sideView?.UpdatePlayerScore(player_moves);
 
-            Console.WriteLine("X: " + player_x);
-            Console.WriteLine("Y: " + player_y);
+            Console.WriteLine("X:" + player_x + " Y:" + player_y);
             
         }
     }
